@@ -1,0 +1,17 @@
+name: IGRINS_absolute_flux_calibrator
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python=3.11
+    - numpy=1.26.4
+    - scipy
+    - matplotlib
+    - astropy
+    - astroquery
+    - specutils>=2.1
+    - pip
+    - pip:
+        - muler
+        - tynt
+        - git+https://github.com/BrownDwarf/gollum.git
