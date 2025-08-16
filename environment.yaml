@@ -14,4 +14,4 @@ dependencies:
     - pip:
         - muler
         - tynt
-        - git+https://github.com/BrownDwarf/gollum.git
+        - gollum>=0.4.2
