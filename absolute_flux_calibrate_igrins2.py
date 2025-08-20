@@ -428,7 +428,10 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		tgt_flux_arr = tgt_spec_flux_calibrated.get_plp_array(band=band, kind='flux') #Generate 2D arrays for calibrated target flux, variance, and throughput
 		tgt_var_arr = tgt_spec_flux_calibrated.get_plp_array(band=band, kind='var')
 		tgt_wave_arr = tgt_spec_flux_calibrated.get_plp_array(band=band, kind='wave')
-		tgt_throughput_arr = tgt_m*(1/tgt_wave_arr) + tgt_b
+		if 'STELLAR' in recipe_log['RECIPE'][tgt_indx]: #Only apply throughput correction for stellar targets
+			tgt_throughput_arr = tgt_m*(1/tgt_wave_arr) + tgt_b
+		else:
+			tgt_throughput_arr = np.ones(np.shape(tgt_wave_arr))
 		
 		#Generate 2D array for standard throughput (and carry the wavelength)
 		std_wave_arr = std_spec.get_plp_array(band=band, kind='wave') #Generate 2D array for standard throughput
