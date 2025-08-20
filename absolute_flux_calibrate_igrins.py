@@ -16,6 +16,15 @@ Simbad.add_votable_fields('ids')
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 
+date = sys.argv[1]
+
+#USER MODIFY THESE PATHS
+plp_path = '/Users/igrins/plp'
+outdata_path = '/Users/igrins/Documents/molecular_hydrogen/reduction-Taurus/outdata/'+date
+plots_path =  outdata_path+'/test_std_star_fitting_diagnostic_plots'
+recipe_log_path = '/Users/igrins/Documents/molecular_hydrogen/reduction-Taurus/recipe_logs/'+date+'.recipes'
+
+
 def standard_star_name_check(std_star_name, coords):
 	std_star_name_0 = std_star_name
 	#standard name/coordinates preflight check:
@@ -165,11 +174,6 @@ def standard_star_name_check(std_star_name, coords):
 
 	return std_star_name
 
-date = sys.argv[1]
-plp_path = '/Users/igrins/plp'
-outdata_path = '/Users/igrins/Documents/molecular_hydrogen/reduction-Taurus/outdata/'+date
-plots_path =  outdata_path+'/test_std_star_fitting_diagnostic_plots'
-recipe_log_path = '/Users/igrins/Documents/molecular_hydrogen/reduction-Taurus/recipe_logs/'+date+'.recipes'
 
 #make the directory for the plots if it is not made yet
 if not os.path.isdir(plots_path+'/'):
