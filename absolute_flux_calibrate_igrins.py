@@ -181,7 +181,7 @@ if not os.path.isdir(plots_path+'/'):
 
 
 #Find all .spec_a0v.fits files in directory
-found_spec_a0v_file_paths = glob.glob(outdata_path+"/*spec_a0v.fits")
+found_spec_a0v_file_paths = sorted(glob.glob(outdata_path+"/*spec_a0v.fits"))
 spec_a0v_file_paths = []
 for filepath in found_spec_a0v_file_paths: #Isolate only H band for now
 	filename = filepath.split('/')[-1]
