@@ -19,10 +19,10 @@ from astropy.coordinates import SkyCoord
 date = sys.argv[1]
 
 #USER MODIFY THESE PATHS
-plp_path = '/Users/igrins/plp'
-outdata_path = '/Users/igrins/Documents/molecular_hydrogen/reduction-Taurus/outdata/'+date
-plots_path =  outdata_path+'/test_std_star_fitting_diagnostic_plots'
-recipe_log_path = '/Users/igrins/Documents/molecular_hydrogen/reduction-Taurus/recipe_logs/'+date+'.recipes'
+plp_path = '/Users/kk25239/Desktop/plp' #Path to the to IGRINS-2 Pipeline
+outdata_path = plp_path + '/outdata/' + date 
+plots_path = outdata_path
+recipe_log_path = plp_path +'/recipe_logs/'+date+'.recipes'
 
 
 def standard_star_name_check(std_star_name, coords):
