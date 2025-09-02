@@ -241,6 +241,8 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	tgt_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '.spec.fits') #Grab information from spec_a0v.fits headers
 	#construct the standard .spec filename
 	std_filename = spec_a0v_hdul[6].header['ORIGNAME'].replace('.fits', '.spec.fits')
+	#construct .spec_a0v.fits filename
+	spec_a0v_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '.spec_a0v.fits')
 
 	#grab the standard star name from the header
 	std_star_name = spec_a0v_hdul[6].header['OBJECT']
@@ -355,8 +357,15 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	print(f'\033[38;5;{63}m\nMODELING STANDARD STAR\033[0m')
 	#Run standard star crude telluric correction and stellar atmosphere model fitting to H I line profiles
 	if std_filename != last_std_filename: #If standard has changed
+
+		#Get tellurics estimate from the PLP's standard star continuum estimate
+		spec_a0v_ext1 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename)
+		spec_a0v_ext9 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9)
+		tellurics_estimate = spec_a0v_ext9 / spec_a0v_ext1
+		total_trans = tellurics_estimate.fullfitTellurics(plot=True, pdfobj=pdfobj)
+
 		#model the star using PHOENIX template
-		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj)
+		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj, total_trans=total_trans)
 		std_model_phot = photometry() #Estimate photometry from best fit model
 		std_model_phot.set_photometry(std_model)
 

@@ -239,6 +239,8 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	tgt_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec.fits'
 	#construct the standard .spec filename
 	std_filename = 'SDCH_' + date + '_' + str(std_obsid).zfill(4) + '.spec.fits'
+	#construct .spec_a0v.fits filename
+	spec_a0v_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec_a0v.fits'
 
 	#grab the standard star name from the header
 	std_star_name = spec_a0v_hdul[6].header['OBJECT']
@@ -314,6 +316,7 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		#Read standard spectrum as a muler IGRINSSpectrumList object
 		std_spec = igrins.readIGRINS(outdata_path+'/'+std_filename)
 
+
 	print(f'\033[38;5;{79}mESTIMATING TARGET SLIT THROUGHPUT\033[0m')
 	#Apply throughput corrections if the target is not an extended object
 	if 'STELLAR' in recipe_log['RECIPE'][tgt_indx]:
@@ -354,7 +357,14 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	#Run standard star crude telluric correction and stellar atmosphere model fitting to H I line profiles
 	if std_filename != last_std_filename: #If standard has changed
 		#model the star using PHOENIX template
-		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj)
+
+		#Get tellurics estimate from the PLP's standard star continuum estimate
+		spec_a0v_ext1 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename)
+		spec_a0v_ext9 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9)
+		tellurics_estimate = spec_a0v_ext9 / spec_a0v_ext1
+		total_trans = tellurics_estimate.fullFitTellurics(plot=True, pdfobj=pdfobj)
+
+		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj, total_trans=total_trans)
 		std_model_phot = photometry() #Estimate photometry from best fit model
 		std_model_phot.set_photometry(std_model)
 
