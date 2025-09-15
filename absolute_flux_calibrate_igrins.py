@@ -362,7 +362,7 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		spec_a0v_ext1 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename)
 		spec_a0v_ext9 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9)
 		tellurics_estimate = spec_a0v_ext9 / spec_a0v_ext1
-		total_trans = tellurics_estimate.fullFitTellurics(plot=True, pdfobj=pdfobj)
+		total_trans = tellurics_estimate.fullfitTellurics(plot=True, pdfobj=pdfobj)
 
 		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj, total_trans=total_trans)
 		std_model_phot = photometry() #Estimate photometry from best fit model
