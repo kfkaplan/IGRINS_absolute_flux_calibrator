@@ -188,6 +188,9 @@ for filepath in found_spec_a0v_file_paths: #Isolate only H band for now
 	if ('SDCH_' in filename) or ('_H.spec_a0v.fits' in filename):
 		spec_a0v_file_paths.append(filepath)
 
+#Determine if we are using Gemini archive format, needed for later setting header keywords
+using_gemini_format = ('_H.spec_a0v.fits' in filename)
+
 #If no stanards were used for a night, say so and end the script
 if len(spec_a0v_file_paths) == 0:
 	print(f'\033[38;5;{177}mNO STANDARD STARS WERE OBSERVED ON THIS NIGHT. FLUX CALIBRATION IS NOT POSSIBLE. ENDING SCRIPT.\033[0m')
@@ -454,19 +457,30 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		hdul[0].header += hdr
 
 		#adding the data to the fits file
-		hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
-		hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
-		hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
-		hdul[8] = fits.ImageHDU(data=std_model_arr, header=hdul[8].header)
-		hdul[8].header["EXTNAME"] = "A0V_MODEL_SPEC"
-		hdul[9] = fits.ImageHDU(data=tgt_throughput_arr, header=hdul[9].header)
-		#hdul[9].header['EXTNAME'] = "SCI" #this is a GN IGRINS-2 thing
-		hdul[9].header['EXTNAME'] = "TGT_THROUGHPUT"
-		#hdul[9].header["EXTVER"] = 6 #this is a GN IGRINS-2 thing
-		hdul[10] = fits.ImageHDU(data=std_throughput_arr, header=hdul[10].header)
-		#hdul[10].header['EXTNAME'] = "SCI" #this is a GN IGRINS-2 thing
-		hdul[10].header['EXTNAME'] = "A0V_THROUGHPUT"
-		#hdul[10].header["EXTVER"] = 7 #this is a GN IGRINS-2 thing
+		if using_gemini_format: #For IGRINS 1 data in Gemini archive format
+			hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
+			hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
+			hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
+			hdul[8] = fits.ImageHDU(data=std_model_arr, header=hdul[8].header)
+			hdul[8].header["EXTDESC"] = "A0V_MODEL_SPEC"
+			hdul[9] = fits.ImageHDU(data=tgt_throughput_arr, header=hdul[9].header)
+			hdul[9].header['EXTNAME'] = "SCI"
+			hdul[9].header['EXTDESC'] = "TGT_THROUGHPUT"
+			hdul[9].header["EXTVER"] = 6
+			hdul[10] = fits.ImageHDU(data=std_throughput_arr, header=hdul[10].header)
+			hdul[10].header['EXTNAME'] = "SCI"
+			hdul[10].header['EXTDESC'] = "A0V_THROUGHPUT"
+			hdul[10].header["EXTVER"] = 7
+		else: #Default IGRINS PLP format for IGRINS 1
+			hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
+			hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
+			hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
+			hdul[8] = fits.ImageHDU(data=std_model_arr, header=hdul[8].header)
+			hdul[8].header["EXTNAME"] = "A0V_MODEL_SPEC"
+			hdul[9] = fits.ImageHDU(data=tgt_throughput_arr, header=hdul[9].header)
+			hdul[9].header['EXTNAME'] = "TGT_THROUGHPUT"
+			hdul[10] = fits.ImageHDU(data=std_throughput_arr, header=hdul[10].header)
+			hdul[10].header['EXTNAME'] = "A0V_THROUGHPUT"
 
 		#Delete last extension since it is not used here
 		hdul.pop(11)
