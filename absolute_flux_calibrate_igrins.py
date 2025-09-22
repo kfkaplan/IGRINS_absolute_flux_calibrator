@@ -191,7 +191,7 @@ for filepath in found_spec_a0v_file_paths: #Isolate only H band for now
 #If no stanards were used for a night, say so and end the script
 if len(spec_a0v_file_paths) == 0:
 	print(f'\033[38;5;{177}mNO STANDARD STARS WERE OBSERVED ON THIS NIGHT. FLUX CALIBRATION IS NOT POSSIBLE. ENDING SCRIPT.\033[0m')
-	quit()
+	sys.exit()
 
 #Load recipe log
 recipe_log = Table.read(recipe_log_path, format='ascii', delimiter=',')
@@ -204,6 +204,7 @@ obsids = np.array(obsids)
 #Loop through each target
 last_std_filename = ''
 for spec_a0v_file_path in spec_a0v_file_paths:
+
 
 	hdr = fits.Header() #Dictionary that stores all the results that will later be put into the final outputted FITS header
 
@@ -359,14 +360,12 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		#model the star using PHOENIX template
 
 		#Get tellurics estimate from the PLP's standard star continuum estimate
-		spec_a0v_ext1 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename)
-		spec_a0v_ext9 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9)
-		tellurics_estimate = spec_a0v_ext9 / spec_a0v_ext1
-		total_trans = tellurics_estimate.fullfitTellurics(plot=True, pdfobj=pdfobj)
+		tellurics_estimate = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9) / igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename) #Divide spec_a0v ext 9 by ext 1
+		total_trans = tellurics_estimate.fitTellurics(plot=True, pdfobj=pdfobj)
 
 		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj, total_trans=total_trans)
-		std_model_phot = photometry() #Estimate photometry from best fit model
-		std_model_phot.set_photometry(std_model)
+		#std_model_phot = photometry() #Estimate photometry from best fit model
+		#std_model_phot.set_photometry(std_model)
 
 	#Fit Model Temperature (Standard)
 	hdr['FMTEFF'] = (std_fit_results['TEFF'], "Std star model fit Teff (K)")
@@ -478,10 +477,13 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		#close the fits file
 		hdul.close()
 
+		del tgt_flux_arr, tgt_var_arr, tgt_wave_arr, tgt_throughput_arr, std_throughput_arr, std_wave_arr, std_model_arr #Memory management
+
 	print(f'\033[38;5;{219}mCOMPLETED FLUX CALIBRATION FOR \033[0m'+f'\033[38;5;{196}m{tgt_name}\033[0m'+f"\033[38;5;{219}m WITH STANDARD \033[0m"+f'\033[38;5;{196}m{std_star_name}\033[0m')
 
 	#Keep track of the last standard filename so we don't need to re-run the fitting if we are using the same standard (same standard file number--standards observed multiple times have each observation sequence fit)
 	last_std_filename = std_filename
+
 
 
 

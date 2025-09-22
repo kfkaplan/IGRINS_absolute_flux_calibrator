@@ -21,7 +21,6 @@ date = sys.argv[1] #Date to process is a command line argument
 #USER MODIFY THESE PATHS
 plp_path = '/Users/kk25239/Desktop/plp-igrins2' #Path to the to IGRINS-2 Pipeline
 outdata_path = plp_path + '/outdata/'+date #Path to the outdata directory
-#plots_path =  plp_path + '/test_std_star_fitting_diagnostic_plots' #Path where diagnostic plots are saved 
 plots_path = outdata_path #For simplicity can just be the same as outdata_path
 recipe_log_path = plp_path + '/recipe_logs/'+date+'.recipes' #Path to recipe_logs files used by the PLP
 
@@ -201,7 +200,7 @@ for filepath in found_spec_a0v_file_paths: #Isolate only H band for now
 #If no stanards were used for a night, say so and end the script
 if len(spec_a0v_file_paths) == 0:
 	print(f'\033[38;5;{177}mNO STANDARD STARS WERE FOUND TO BE USED FOR THIS NIGHT.  ENDING SCRIPT.\033[0m')
-	quit()
+	sys.exit()
 
 
 #Load recipe log
@@ -358,16 +357,14 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	#Run standard star crude telluric correction and stellar atmosphere model fitting to H I line profiles
 	if std_filename != last_std_filename: #If standard has changed
 
-		#Get tellurics estimate from the PLP's standard star continuum estimate
-		spec_a0v_ext1 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename)
-		spec_a0v_ext9 = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9)
-		tellurics_estimate = spec_a0v_ext9 / spec_a0v_ext1
-		total_trans = tellurics_estimate.fullfitTellurics(plot=True, pdfobj=pdfobj)
+		#Get tellurics estimate from the PLP's standard star continuum estimate 
+		tellurics_estimate = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9) / igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename) #Divide spec_a0v ext 9 by ext 1
+		total_trans = tellurics_estimate.fitTellurics(plot=True, pdfobj=pdfobj)
 
 		#model the star using PHOENIX template
 		std_model, resampled_std_model, std_simbad_phot, std_fit_results = std_spec.fitStandardStar(name=std_star_name, coords=std_coords, name_prefix='Standard Star:', plot=True, pdfobj=pdfobj, total_trans=total_trans)
-		std_model_phot = photometry() #Estimate photometry from best fit model
-		std_model_phot.set_photometry(std_model)
+		#std_model_phot = photometry() #Estimate photometry from best fit model
+		#std_model_phot.set_photometry(std_model)
 
 	#Fit Model Temperature (Standard)
 	hdr['FMTEFF'] = (std_fit_results['TEFF'], "Std star model fit Teff (K)")
@@ -478,6 +475,8 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		hdul.writeto(filepath + filename.replace('spec_a0v.fits', 'flux_a0v.fits'), overwrite=True)
 		#close the fits file
 		hdul.close()
+
+		del tgt_flux_arr, tgt_var_arr, tgt_wave_arr, tgt_throughput_arr, std_throughput_arr std_wave_arr, std_model_arr #Memory management
 
 	print(f'\033[38;5;{177}mCOMPLETED FLUX CALIBRATION FOR \033[0m'+f'\033[38;5;{196}m{tgt_name}\033[0m'+f"\033[38;5;{177}m WITH STANDARD \033[0m"+f'\033[38;5;{196}m{std_star_name}\033[0m')
 
