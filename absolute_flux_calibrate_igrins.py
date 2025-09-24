@@ -25,6 +25,7 @@ plots_path = outdata_path
 recipe_log_path = plp_path +'/recipe_logs/'+date+'.recipes'
 
 
+
 def standard_star_name_check(std_star_name, coords):
 	std_star_name_0 = std_star_name
 	#standard name/coordinates preflight check:
@@ -283,12 +284,14 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	#grabbing the target exposure time
 	tgt_exptime = float(spec_a0v_hdul[4].header['EXPTIME']) 
 	#grabbing the standard exposure time
-	std_exptime =  float(spec_a0v_hdul[6].header['EXPTIME'])
+	if std_filename != last_std_filename: #If standard has changed
+		std_exptime =  float(spec_a0v_hdul[6].header['EXPTIME'])
 
 	#grabbing the number of target exposures
 	tgt_nexp = len(recipe_log['FRAMETYPES'][tgt_indx].split(' '))
 	#grabbing the number of standard exposures
-	std_nexp = len(recipe_log['FRAMETYPES'][std_indx].split(' ')) 
+	if std_filename != last_std_filename: #If standard has changed
+		std_nexp = len(recipe_log['FRAMETYPES'][std_indx].split(' ')) 
 
 	#calculating exposure time differently if the target/standard is nodded on/off slit instead of A/B pairs
 	#see if the target is nodded on/off
@@ -297,13 +300,14 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	std_nod_off_slit = '_ONOFF' in recipe_log['RECIPE'][std_indx]
 	if tgt_nod_off_slit: #If nod-off-slit
 		tgt_nexp = tgt_nexp / 2 #Cut number of exposures in half since we are only on source half the time
-	if std_nod_off_slit: #If nod-off-slit
+	if std_nod_off_slit and std_filename != last_std_filename: #If standard has changed: #If nod-off-slit
 		std_nexp = std_nexp / 2 #Cut number of exposures in half since we are only on source half the time
 
 	#calculating the time spent on target	
 	tgt_total_on_time = tgt_exptime * tgt_nexp
 	#calculating the time spent on standard
-	std_total_on_time = std_exptime * std_nexp
+	if std_filename != last_std_filename: #If standard has changed
+		std_total_on_time = std_exptime * std_nexp
 
 	#adding the time spent on target to the header
 	hdr['FTTOTEXP'] = (tgt_total_on_time, "Total exp. time (s) on target.")
@@ -361,6 +365,8 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	#Run standard star crude telluric correction and stellar atmosphere model fitting to H I line profiles
 	if std_filename != last_std_filename: #If standard has changed
 		#model the star using PHOENIX template
+		if last_std_filename != '':
+			del tellurics_estimate, total_trans, std_model, resampled_std_model, std_simbad_phot, std_fit_results #memory management
 
 		#Get tellurics estimate from the PLP's standard star continuum estimate
 		tellurics_estimate = igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename, extension=9) / igrins.readIGRINS(outdata_path+'/'+spec_a0v_filename) #Divide spec_a0v ext 9 by ext 1
@@ -492,6 +498,7 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		hdul.close()
 
 		del tgt_flux_arr, tgt_var_arr, tgt_wave_arr, tgt_throughput_arr, std_throughput_arr, std_wave_arr, std_model_arr #Memory management
+
 
 	print(f'\033[38;5;{219}mCOMPLETED FLUX CALIBRATION FOR \033[0m'+f'\033[38;5;{196}m{tgt_name}\033[0m'+f"\033[38;5;{219}m WITH STANDARD \033[0m"+f'\033[38;5;{196}m{std_star_name}\033[0m')
 

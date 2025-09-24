@@ -16,6 +16,7 @@ Simbad.add_votable_fields('ids')
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 
+
 date = sys.argv[1] #Date to process is a command line argument
 
 #USER MODIFY THESE PATHS
@@ -477,6 +478,7 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		hdul.close()
 
 		del tgt_flux_arr, tgt_var_arr, tgt_wave_arr, tgt_throughput_arr, std_throughput_arr, std_wave_arr, std_model_arr #Memory management
+
 
 	print(f'\033[38;5;{177}mCOMPLETED FLUX CALIBRATION FOR \033[0m'+f'\033[38;5;{196}m{tgt_name}\033[0m'+f"\033[38;5;{177}m WITH STANDARD \033[0m"+f'\033[38;5;{196}m{std_star_name}\033[0m')
 
