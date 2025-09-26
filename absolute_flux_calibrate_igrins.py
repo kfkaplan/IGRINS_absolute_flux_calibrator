@@ -190,7 +190,7 @@ for filepath in found_spec_a0v_file_paths: #Isolate only H band for now
 		spec_a0v_file_paths.append(filepath)
 
 #Determine if we are using Gemini archive format, needed for later setting header keywords
-using_gemini_format = ('_H.spec_a0v.fits' in filename)
+using_gemini_format = ('_H.spec_a0v.fits' in filename) or ('_K.spec_a0v.fits' in filename)
 
 #If no stanards were used for a night, say so and end the script
 if len(spec_a0v_file_paths) == 0:
