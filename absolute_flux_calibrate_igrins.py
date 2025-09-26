@@ -240,12 +240,20 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	#finding the index in the recipe log corresponding to the standard obsid
 	std_indx = np.where(std_obsid == obsids)[0][0]
 
-	#construct the target .spec filename
-	tgt_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec.fits'
-	#construct the standard .spec filename
-	std_filename = 'SDCH_' + date + '_' + str(std_obsid).zfill(4) + '.spec.fits'
-	#construct .spec_a0v.fits filename
-	spec_a0v_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec_a0v.fits'
+	if using_gemini_format: #Gemini archive format
+		#construct the target .spec filename
+		tgt_filename = 'N' + date + 'S' + str(tgt_obsid).zfill(4) + '_H.spec.fits'
+		#construct the standard .spec filename
+		std_filename = 'N' + date + 'S' + str(std_obsid).zfill(4) + '_H.spec.fits'
+		#construct .spec_a0v.fits filename
+		spec_a0v_filename = 'N' + date + 'S' + str(tgt_obsid).zfill(4) + '_H.spec_a0v.fits'
+	else: #Regular IGRINS 1 PLP format
+		#construct the target .spec filename
+		tgt_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec.fits'
+		#construct the standard .spec filename
+		std_filename = 'SDCH_' + date + '_' + str(std_obsid).zfill(4) + '.spec.fits'
+		#construct .spec_a0v.fits filename
+		spec_a0v_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec_a0v.fits'
 
 	#grab the standard star name from the header
 	std_star_name = spec_a0v_hdul[6].header['OBJECT']
