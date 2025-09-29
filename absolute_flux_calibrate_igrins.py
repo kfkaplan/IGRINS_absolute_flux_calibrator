@@ -189,8 +189,6 @@ for filepath in found_spec_a0v_file_paths: #Isolate only H band for now
 	if ('SDCH_' in filename) or ('_H.spec_a0v.fits' in filename):
 		spec_a0v_file_paths.append(filepath)
 
-#Determine if we are using Gemini archive format, needed for later setting header keywords
-using_gemini_format = ('_H.spec_a0v.fits' in filename) or ('_K.spec_a0v.fits' in filename)
 
 #If no stanards were used for a night, say so and end the script
 if len(spec_a0v_file_paths) == 0:
@@ -240,20 +238,12 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	#finding the index in the recipe log corresponding to the standard obsid
 	std_indx = np.where(std_obsid == obsids)[0][0]
 
-	if using_gemini_format: #Gemini archive format
-		#construct the target .spec filename
-		tgt_filename = 'N' + date + 'S' + str(tgt_obsid).zfill(4) + '_H.spec.fits'
-		#construct the standard .spec filename
-		std_filename = 'N' + date + 'S' + str(std_obsid).zfill(4) + '_H.spec.fits'
-		#construct .spec_a0v.fits filename
-		spec_a0v_filename = 'N' + date + 'S' + str(tgt_obsid).zfill(4) + '_H.spec_a0v.fits'
-	else: #Regular IGRINS 1 PLP format
-		#construct the target .spec filename
-		tgt_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec.fits'
-		#construct the standard .spec filename
-		std_filename = 'SDCH_' + date + '_' + str(std_obsid).zfill(4) + '.spec.fits'
-		#construct .spec_a0v.fits filename
-		spec_a0v_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec_a0v.fits'
+	tgt_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec.fits'
+	#construct the standard .spec filename
+	std_filename = 'SDCH_' + date + '_' + str(std_obsid).zfill(4) + '.spec.fits'
+	#construct .spec_a0v.fits filename
+	spec_a0v_filename = 'SDCH_' + date + '_' + str(tgt_obsid).zfill(4) + '.spec_a0v.fits'
+
 
 	#grab the standard star name from the header
 	std_star_name = spec_a0v_hdul[6].header['OBJECT']
@@ -471,7 +461,17 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		hdul[0].header += hdr
 
 		#adding the data to the fits file
-		if using_gemini_format: #For IGRINS 1 data in Gemini archive format
+		if hdul[1].header["EXTVER"] is None:  #Default IGRINS PLP format for IGRINS 1, header keyword EXTVER only applies to Gemini Format
+			hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
+			hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
+			hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
+			hdul[8] = fits.ImageHDU(data=std_model_arr, header=hdul[8].header)
+			hdul[8].header["EXTNAME"] = "A0V_MODEL_SPEC"
+			hdul[9] = fits.ImageHDU(data=tgt_throughput_arr, header=hdul[9].header)
+			hdul[9].header['EXTNAME'] = "TGT_THROUGHPUT"
+			hdul[10] = fits.ImageHDU(data=std_throughput_arr, header=hdul[10].header)
+			hdul[10].header['EXTNAME'] = "A0V_THROUGHPUT"
+		else: #For IGRINS 1 data in Gemini archive format
 			hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
 			hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
 			hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
@@ -485,16 +485,7 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 			hdul[10].header['EXTNAME'] = "SCI"
 			hdul[10].header['EXTDESC'] = "A0V_THROUGHPUT"
 			hdul[10].header["EXTVER"] = 7
-		else: #Default IGRINS PLP format for IGRINS 1
-			hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
-			hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
-			hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
-			hdul[8] = fits.ImageHDU(data=std_model_arr, header=hdul[8].header)
-			hdul[8].header["EXTNAME"] = "A0V_MODEL_SPEC"
-			hdul[9] = fits.ImageHDU(data=tgt_throughput_arr, header=hdul[9].header)
-			hdul[9].header['EXTNAME'] = "TGT_THROUGHPUT"
-			hdul[10] = fits.ImageHDU(data=std_throughput_arr, header=hdul[10].header)
-			hdul[10].header['EXTNAME'] = "A0V_THROUGHPUT"
+
 
 		#Delete last extension since it is not used here
 		hdul.pop(11)
