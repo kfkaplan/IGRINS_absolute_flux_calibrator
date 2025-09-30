@@ -461,7 +461,7 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		hdul[0].header += hdr
 
 		#adding the data to the fits file
-		if hdul[1].header["EXTVER"] is None:  #Default IGRINS PLP format for IGRINS 1, header keyword EXTVER only applies to Gemini Format
+		if 'EXTVER' in hdul[1].header:  #Default IGRINS PLP format for IGRINS 1, header keyword EXTVER only applies to Gemini Format
 			hdul[1] = fits.ImageHDU(data=tgt_flux_arr, header=hdul[1].header)
 			hdul[1].header['BUNIT'] = ('erg s-1 cm-2 micron-1', 'Flux Units')
 			hdul[2] = fits.ImageHDU(data=tgt_var_arr, header=hdul[2].header)
