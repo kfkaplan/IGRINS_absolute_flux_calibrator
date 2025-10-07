@@ -12,6 +12,7 @@ import glob
 import copy
 from matplotlib.backends.backend_pdf import PdfPages  #For outputting a pdf with multiple pages (or one page)
 from astroquery.simbad import Simbad
+Simbad.reset_votable_fields()
 Simbad.add_votable_fields('ids')
 import astropy.units as u
 from astropy.coordinates import SkyCoord
