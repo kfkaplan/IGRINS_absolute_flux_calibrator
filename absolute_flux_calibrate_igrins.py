@@ -268,17 +268,16 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 		print(f'\033[38;5;{196}mWARNING: NO STANDARD COORDINATES FROM HEADER\033[0m\n')
 		std_coords = ''
 
-	try:
-		#grabbing the target position angle
+	#grabbing the standard position angle
+	if 'PASTART' in spec_a0v_hdul[4].header:
 		tgt_pa = spec_a0v_hdul[4].header['PASTART']
-		#grabbing the standard position angle
 		std_pa = spec_a0v_hdul[6].header['PASTART']
-	except KeyError:
-		#grabbing the target position angle
+	elif 'TEL_PA' in spec_a0v_hdul[4].header:
 		tgt_pa = spec_a0v_hdul[4].header['TEL_PA']	
-		#grabbing the standard position angle
 		std_pa = spec_a0v_hdul[6].header['TEL_PA']	
-
+	elif 'TELPA' in spec_a0v_hdul[4].header:
+		tgt_pa = spec_a0v_hdul[4].header['TELPA']	
+		std_pa = spec_a0v_hdul[6].header['TELPA']
 
 	#grabbing the target exposure time
 	tgt_exptime = float(spec_a0v_hdul[4].header['EXPTIME']) 
