@@ -12,6 +12,6 @@ dependencies:
     - specutils>=2.1
     - pip
     - pip:
-        - muler>=0.5.3
+        - muler>=0.5.4
         - tynt
         - gollum>=0.4.2
