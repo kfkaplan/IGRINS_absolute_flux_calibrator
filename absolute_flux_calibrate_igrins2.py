@@ -247,6 +247,15 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 
 	#grab the standard star name from the header
 	std_star_name = spec_a0v_hdul[6].header['OBJECT']
+
+	#sometimes the header fills in wrong and the standard star name is blank when it shouldn't be
+	if std_star_name == '':
+		recipe_log_pd = pd.read_csv(recipe_log_path, comment = '#', header = 0, skipinitialspace = True)
+		#grab the index of the standard star in the recipe log
+		std_recipe_idx = np.where(recipe_log_pd['GROUP1'] == std_obsid)[0][0]
+		#grab the standard name from the recipe log
+		std_star_name = recipe_log_pd.iloc[std_recipe_idx]['OBJNAME']
+	
 	#grab the target name from the header
 	tgt_name = spec_a0v_hdul[4].header['OBJECT']
 
