@@ -31,7 +31,7 @@ def standard_star_name_check(std_star_name, coords):
 	std_star_name_0 = std_star_name
 	#standard name/coordinates preflight check:
 	#check to see if the standard name we grabbed from the header is simbad searchable
-	query_name = Simbad.query_object(std_star_name)
+	query_name = Simbad.query_object(std_star_name.lower())
 	#the name is not simbad searchable
 	if len(query_name) == 0 and coords != '':
 		#now we query the coordinates
@@ -120,7 +120,7 @@ def standard_star_name_check(std_star_name, coords):
 				#ask the user to input the standard star name
 				name = input(f"\033[38;5;{39}mINPUT THE SIMBAD SEARCHABLE STANDARD STAR NAME: \033[0m")
 				#try querying the input name
-				query_name = Simbad.query_object(name)
+				query_name = Simbad.query_object(name.lower())
 
 				#if the name input does not generate a simbad result
 				while len(query_name) == 0:
@@ -129,7 +129,7 @@ def standard_star_name_check(std_star_name, coords):
 					#ask the user for the searchable name
 					name = input(f"\033[38;5;{39}mINPUT THE SIMBAD SEARCHABLE STANDARD STAR NAME: \033[0m")
 					#query the new input name
-					query_name = Simbad.query_object(name)
+					query_name = Simbad.query_object(name.lower())
 
 				#if the input name generates a simbad result
 				if len(query_name) != 0:
@@ -147,7 +147,7 @@ def standard_star_name_check(std_star_name, coords):
 		#ask the user to input the standard star name
 		name = input(f"\033[38;5;{39}mINPUT THE SIMBAD SEARCHABLE STANDARD STAR NAME: \033[0m")
 		#try querying the input name
-		query_name = Simbad.query_object(name)
+		query_name = Simbad.query_object(name.lower())
 
 		#if the name input does not generate a simbad result
 		while len(query_name) == 0:
@@ -156,7 +156,7 @@ def standard_star_name_check(std_star_name, coords):
 			#ask the user for the searchable name
 			name = input(f"\033[38;5;{39}mINPUT THE SIMBAD SEARCHABLE STANDARD STAR NAME: \033[0m")
 			#query the new input name
-			query_name = Simbad.query_object(name)
+			query_name = Simbad.query_object(name.lower())
 
 		#if the input name generates a simbad result
 		if len(query_name) != 0:
