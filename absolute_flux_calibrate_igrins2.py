@@ -238,12 +238,21 @@ for spec_a0v_file_path in spec_a0v_file_paths:
 	std_indx = np.where(std_obsid == obsids)[0][0]
 
 
-	#construct the target .spec filename
-	tgt_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '.spec.fits') #Grab information from spec_a0v.fits headers
-	#construct the standard .spec filename
-	std_filename = spec_a0v_hdul[6].header['ORIGNAME'].replace('.fits', '.spec.fits')
-	#construct .spec_a0v.fits filename
-	spec_a0v_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '.spec_a0v.fits')
+	
+	if '_H.fits' in spec_a0v_hdul[4].header['ORIGNAME']:
+		#construct the target .spec filename
+		tgt_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '.spec.fits') #Grab information from spec_a0v.fits headers
+		#construct the standard .spec filename
+		std_filename = spec_a0v_hdul[6].header['ORIGNAME'].replace('.fits', '.spec.fits')
+		#construct .spec_a0v.fits filename
+		spec_a0v_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '.spec_a0v.fits')
+	else: #Fix if ORIGNAME keyword lacks band
+		#construct the target .spec filename
+		tgt_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '_H.spec.fits') #Grab information from spec_a0v.fits headers
+		#construct the standard .spec filename
+		std_filename = spec_a0v_hdul[6].header['ORIGNAME'].replace('.fits', '_H.spec.fits')
+		#construct .spec_a0v.fits filename
+		spec_a0v_filename = spec_a0v_hdul[4].header['ORIGNAME'].replace('.fits', '_H.spec_a0v.fits')
 
 	#grab the standard star name from the header
 	std_star_name = spec_a0v_hdul[6].header['OBJECT']
