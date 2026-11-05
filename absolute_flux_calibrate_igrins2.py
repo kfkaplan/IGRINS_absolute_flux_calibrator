@@ -10,10 +10,9 @@ from muler import igrins
 from muler.utilities import photometry
 import glob
 import copy
+import urllib
 from matplotlib.backends.backend_pdf import PdfPages  #For outputting a pdf with multiple pages (or one page)
 from astroquery.simbad import Simbad
-Simbad.reset_votable_fields()
-Simbad.add_votable_fields('ids')
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 
@@ -31,6 +30,23 @@ recipe_log_path = plp_path + '/recipe_logs/'+date+'.recipes' #Path to recipe_log
 slit_length = 5 #length of slit in arcsec
 guiding_error = 0 #Presumeably Gemini North has good guiding
 telescope = 'Gemini North'
+
+
+#Check Simbad server in France is up, if not fallback to Harvard Simbad mirror, else throw an error
+try:
+	urllib.request.urlopen('https://simbad.cds.unistra.fr', timout=10)
+except:
+	print('Unable to connect to simbad.cds.unistra.fr.  Trying mirror simbad.cfa.harvard.edu')
+	try:
+		urllib.request.urlopen('https://simbad.cfa.harvard.edu')
+		print('Found simbad.cfa.harvard.edu')
+		Simbad.server = 'simbad.harvard.edu' #Update simbad server
+	except:
+		raise ConnectionError("Unable to connect to simbad.cds.unistra.fr or simbad.cfa.harvard.edu.  Check your network connection, firewall settings, or connection to the internet.")
+
+Simbad.reset_votable_fields()
+Simbad.add_votable_fields('ids')
+
 
 
 def standard_star_name_check(std_star_name, coords):
